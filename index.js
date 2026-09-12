@@ -7,7 +7,7 @@ vals[0][0]= 1 ;
 console.log(vals);
 
 
-let ch = 'X';
+let ch = 'X', r= false;
 
 vals.forEach((v,i)=>{
     let row = `<div class="r" id="r${i}"></div>`;
@@ -39,35 +39,67 @@ function check(indd){
     return solved;
 }
 
-function reset(){
-    document.querySelectorAll('.b').innerHTML = '';
-    for(let i=0; i<3; i++){
-        for(let j=0;j<3; j++){
-            vals[i][j]=0;  
-            document.querySelector(`#b${i*3+j}`).innerHTML = '';         
-        }
-    }
+function reset(cha){
+    let bann = document.querySelector('.banner');
+    bann.innerHTML= `Player ${cha} won!!
+    Click anywhere to continue.`;
+    
+    r = true;
+    // let p =0;
+    // document.addEventListener("click",handleReset(p));
 }
 
-gridElem.addEventListener("click", (e)=>{
+document.addEventListener("click", (e)=>{
     let elem = e.target;
     console.log(elem.id);
 
     //use vals instead of setting per element
-    if(elem.className==='b'  && !elem.innerHTML){
+    if(r){
+        let bann = document.querySelector('.banner');
+
+        document.querySelectorAll('.b').innerHTML = '';
+        for(let i=0; i<3; i++){
+            for(let j=0;j<3; j++){
+                vals[i][j]=0;  
+                document.querySelector(`#b${i*3+j}`).innerHTML = '';         
+            }
+        }
+        bann.innerHTML = `Player ${ch}'s turn!`;
+        r = false;
+    } else if(elem.className==='b'  && !elem.innerHTML){
         elem.innerHTML = ch;
         // console.log(elem.id); 
         let ind = Number(elem.id.slice(1));
         // console.log(ind);
         vals[Math.floor(ind/3)][ind%3] = ch;
-        if(ch==='X'){
-            ch= "O";
-        } else {
-            ch="X";
-        }
-
+        
         console.log(check(ind));
-        // if(check(ind))reset();
+
+        let bann = document.querySelector('.banner');
+        if(check(ind))reset(ch);
+        else {
+            
+            if(ch==='X'){
+                ch= "O";
+            } else {
+                ch="X";
+            }
+            bann.innerHTML = `Player ${ch}'s turn!`;
+
+            let filled = true;
+            for(let ii=0; ii<3;ii++){
+                for(let jj=0; jj<3; jj++){
+                    if(vals[ii][jj]==0){
+                        filled = false;
+                    }
+                }
+            }
+            if(filled){
+                bann.innerHTML = 'Nobody won!!';
+                r = true;
+            }
+        }        
+        
         console.log(vals);
     }
 })
